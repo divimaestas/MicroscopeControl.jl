@@ -50,6 +50,9 @@ include("tcube_laser/TCubeLaserControl.jl")
 include("daq_transmission_light/TransmissionDaqControl.jl")
 @reexport using .TransmissionDaqControl
 
+include("shutter_ttl/ShutterTTL.jl")
+@reexport using .ShutterTTLControl
+
 include("crysta_laser_561/CrystaLaserControl.jl")
 @reexport using .CrystaLaserControl
 
