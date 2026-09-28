@@ -32,4 +32,4 @@ H.DCAM4.initialize(cam)
 # l642 = H.TCubeLaser("64838719")
 
 # --- 405 (ao1 + Port0/Line3) and 561 (COM4 + ND wheel + Port1/Line1): commented out in
-#     devices_basic.m. Confirm with mentor whether they are still part of this rig. ---
+#     devices_basic.m but still part of the rig. DAQ-gated; native install. ---
