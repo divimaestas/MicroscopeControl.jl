@@ -43,6 +43,8 @@ include("nidaq/NIDAQcard.jl")
 # Light source implementations
 include("simulated_light/SimulatedLight.jl")
 @reexport using .SimulatedLight
+include("coherent_sapphire/CoherentSapphire.jl")
+@reexport using .CoherentSapphireControl
 
 include("tcube_laser/TCubeLaserControl.jl")
 @reexport using .TCubeLaserControl
