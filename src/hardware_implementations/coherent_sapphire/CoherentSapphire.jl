@@ -87,13 +87,23 @@ end
 Send `cmd` and return the reply as a stripped string. Returns an empty string
 if the laser does not answer within `wait` seconds.
 """
-function query(light::CoherentSapphire, cmd::AbstractString; wait::Float64 = 0.2)
+function query(light::CoherentSapphire, cmd::AbstractString; timeout::Float64 = 1.0)
     io = light.io
     io === nothing && error("$(light.unique_id): port not open, call initialize first")
+    bytesavailable(io) > 0 && read(io)          # drop any stale reply
     write(io, cmd * TERM)
-    sleep(wait)
-    reply = String(read(io))
-    return strip(replace(reply, r"[\r\n>]+" => " "))
+    buf = UInt8[]
+    t0 = time()
+    while time() - t0 < timeout
+        n = bytesavailable(io)
+        if n > 0
+            append!(buf, read(io, n))
+            UInt8('\n') in buf && break
+        else
+            sleep(0.02)
+        end
+    end
+    return strip(replace(String(buf), r"[\r\n>]+" => " "))
 end
 
 """
