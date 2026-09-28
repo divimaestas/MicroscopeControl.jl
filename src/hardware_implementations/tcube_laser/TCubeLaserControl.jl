@@ -17,7 +17,7 @@ import ...MicroscopeControl: export_state, initialize, shutdown
 import ...MicroscopeControl.HardwareInterfaces.LightSourceInterface: gui as red_laser_gui
 
 
-const Thorlabs_Tcube_laser = "C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.TCube.LaserDiode.dll"
+using ...Libraries: libkinesis_tcube_ld
 
 # Bench data measured on this controller in open-loop mode, preserved from the
 # deleted `helpers.jl` (which drove 80 mA into a specific lab laser at include

@@ -16,7 +16,8 @@ module Libraries
 
 
 export libdcam, libthorlabs_tsi, libmadlib, libmicrodrive,
-       libuc480, libokfrontpanel, libpigcs2, libsmaractctl, libblink
+       libuc480, libokfrontpanel, libpigcs2, libsmaractctl, libblink,
+       libkinesis_tcube_ld
 
 global libdcam::String = ""
 global libthorlabs_tsi::String = ""
@@ -27,6 +28,7 @@ global libokfrontpanel::String = ""
 global libpigcs2::String = ""
 global libsmaractctl::String = ""
 global libblink::String = ""
+global libkinesis_tcube_ld::String = ""
 
 _pick(key, win, linux) = get(ENV, "MICROSCOPECONTROL_" * uppercase(key),
     Sys.iswindows() ? win :
@@ -57,6 +59,9 @@ function __init__()
     global libblink = _pick("libblink",
         raw"C:\Program Files\Meadowlark Optics\Blink OverDrive Plus\SDK\Blink_C_wrapper.dll",
         "libBlink_C_wrapper.so")
+    global libkinesis_tcube_ld = _pick("libkinesis_tcube_ld",
+        raw"C:\Program Files\Thorlabs\Kinesis\Thorlabs.MotionControl.TCube.LaserDiode.dll",
+        "")   # Kinesis has no Linux build; see tcube_laser for the APT-over-serial plan
 end
 
 """
