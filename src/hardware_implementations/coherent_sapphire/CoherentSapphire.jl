@@ -219,6 +219,19 @@ function LightSourceInterface.light_on(light::CoherentSapphire)
     return nothing
 end
 
+
+"""
+    light_on(light::CoherentSapphire, power::Float64)
+
+Set the setpoint to `power` mW, then enable emission.
+"""
+function LightSourceInterface.light_on(light::CoherentSapphire, power::Float64)
+    LightSourceInterface.setpower(light, power)
+    LightSourceInterface.light_on(light)
+    return nothing
+end
+
+
 """
     light_off(light::CoherentSapphire)
 

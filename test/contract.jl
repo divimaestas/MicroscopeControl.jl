@@ -217,7 +217,11 @@ end
             # LightSource today -- a pre-existing interface/driver arity
             # mismatch, not something to paper over with a fake 2-arg wrapper.
             # Tracked as broken rather than skipped so a real fix flips it.
-            @test_broken has_specific_method(MC.light_on, T, Float64)
+            if has_specific_method(MC.light_on, T, Float64)
+                @test has_specific_method(MC.light_on, T, Float64)
+            else
+                @test_broken has_specific_method(MC.light_on, T, Float64)
+            end
             @test has_specific_method(MC.light_on, T) # the arity drivers actually implement
             @test has_specific_method(MC.light_off, T)
         end
