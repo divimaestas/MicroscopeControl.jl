@@ -4,7 +4,7 @@ module PI_N472
 
     import ...MicroscopeControl: export_state, initialize, shutdown, gui
 
-    const PI_GCS2 = "C:\\Program Files (x86)\\Physik Instrumente (PI)\\Software Suite\\Development\\C++\\API\\PI_GCS2_DLL_x64.dll"
+    using ...Libraries: libpigcs2
 
 
     include("constants_GCS2.jl")

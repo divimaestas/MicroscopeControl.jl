@@ -11,7 +11,7 @@ function initialize_original(stage::PIStage) #TODO: Error handling
     bufferstring = Vector{UInt8}(undef, 1024)
 
     #Find number of connected USB devices, specifically the PI C-867 controller
-    numconnected = @ccall gcs2path.PI_EnumerateUSB(bufferstring::Ptr{UInt8}, 1024::Cint, "PI C-867"::Ptr{UInt8})::Cint
+    numconnected = @ccall libpigcs2.PI_EnumerateUSB(bufferstring::Ptr{UInt8}, 1024::Cint, "PI C-867"::Ptr{UInt8})::Cint
 
     @info "Number of connected devices: " * string(numconnected)
 
@@ -27,7 +27,7 @@ function initialize_original(stage::PIStage) #TODO: Error handling
         return
     end
     #Connect to usb device
-    stage.id = @ccall gcs2path.PI_ConnectUSB(bufferstring::Ptr{UInt8})::Cint
+    stage.id = @ccall libpigcs2.PI_ConnectUSB(bufferstring::Ptr{UInt8})::Cint
 
     @info "Device ID: " * string(stage.id)
 
@@ -67,7 +67,7 @@ Possibly must use PiMikroMove to calibrate, but this is not ideal, however there
 
 """
 function referencemove(stage::PIStage)
-    ismoved = @ccall gcs2path.PI_FRF(stage.id::Cint, "1 2"::Ptr{UInt8})::Cint
+    ismoved = @ccall libpigcs2.PI_FRF(stage.id::Cint, "1 2"::Ptr{UInt8})::Cint
     return ismoved
 end
 
@@ -76,11 +76,11 @@ end
 Function to disconnect PI Stage
 """
 function shutdown_original(stage::PIStage)
-    isconnected = @ccall gcs2path.PI_IsConnected(stage.id::Cint)::Cint
+    isconnected = @ccall libpigcs2.PI_IsConnected(stage.id::Cint)::Cint
 
     if isconnected == 1
-        @ccall gcs2path.PI_CloseConnection(stage.id::Cint)::Cvoid
-        isconnected = @ccall gcs2path.PI_IsConnected(stage.id::Cint)::Cint
+        @ccall libpigcs2.PI_CloseConnection(stage.id::Cint)::Cvoid
+        isconnected = @ccall libpigcs2.PI_IsConnected(stage.id::Cint)::Cint
 
         if isconnected == 1
             @error "Stage failed to disconnect"
@@ -101,7 +101,7 @@ function servo(stage::PIStage, xtoggle::Bool, ytoggle::Bool)
     # PI_SVO takes `const BOOL*` = 32-bit ints, one per axis. Passing two UInt8 made the DLL
     # read axis 2's flag from whatever byte followed the array: servo silently OFF on Y,
     # every PI_MOV refused with GCS error 5 (worked by luck on Julia 1.10, failed on 1.13).
-    istoggled = @ccall gcs2path.PI_SVO(stage.id::Cint, "1 2"::Ptr{UInt8}, Cint[xtoggle, ytoggle]::Ptr{Cint})::Cint
+    istoggled = @ccall libpigcs2.PI_SVO(stage.id::Cint, "1 2"::Ptr{UInt8}, Cint[xtoggle, ytoggle]::Ptr{Cint})::Cint
     stage.servostatus = (xtoggle, ytoggle)
 
     if istoggled == 1
@@ -115,7 +115,7 @@ end
 Sets the servo state of the x axis
 """
 function servox(stage::PIStage, xtoggle::Bool)
-    @ccall gcs2path.PI_SVO(stage.id::Cint, "1"::Ptr{UInt8}, Cint[xtoggle]::Ptr{Cint})::Cint
+    @ccall libpigcs2.PI_SVO(stage.id::Cint, "1"::Ptr{UInt8}, Cint[xtoggle]::Ptr{Cint})::Cint
     stage.servostatus = (xtoggle, stage.servostatus[2])
 end
 
@@ -124,20 +124,20 @@ end
 Sets the servo state of the y axis
 """
 function servoy(stage::PIStage, ytoggle::Bool)
-    @ccall gcs2path.PI_SVO(stage.id::Cint, "2"::Ptr{UInt8}, Cint[ytoggle]::Ptr{Cint})::Cint
+    @ccall libpigcs2.PI_SVO(stage.id::Cint, "2"::Ptr{UInt8}, Cint[ytoggle]::Ptr{Cint})::Cint
     stage.servostatus = (stage.servostatus[1], ytoggle)
 end
 
 
 function setvel(stage::PIStage,vel::Vector{Float64})
 
-    success = @ccall gcs2path.PI_VEL(stage.id::Cint, "1 2"::Ptr{UInt8}, vel::Ptr{Cdouble})::Cint
+    success = @ccall libpigcs2.PI_VEL(stage.id::Cint, "1 2"::Ptr{UInt8}, vel::Ptr{Cdouble})::Cint
 
     if success == 0
         @error "Failed to set velocity"
     end
     velocity = Vector{Cdouble}(undef, 2)
-    success = @ccall gcs2path.PI_qVEL(stage.id::Cint, "1 2"::Ptr{UInt8}, velocity::Ptr{Cdouble})::Cint
+    success = @ccall libpigcs2.PI_qVEL(stage.id::Cint, "1 2"::Ptr{UInt8}, velocity::Ptr{Cdouble})::Cint
     
     if success == 0
         @error "Failed to query velocity"

@@ -3,7 +3,7 @@ module PI
 
     import ...MicroscopeControl: export_state, initialize, shutdown
 
-    global const gcs2path = "C:\\Program Files (x86)\\Physik Instrumente (PI)\\Software Suite\\Development\\C++\\API\\PI_GCS2_DLL_x64.dll"
+    using ...Libraries: libpigcs2
 
     include("types.jl")
     include("move_methods.jl")
