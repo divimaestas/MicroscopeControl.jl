@@ -8,7 +8,6 @@ module XEM_DAC
     import ...MicroscopeControl.HardwareImplementations.OK_XEM: setwirein, activetriggerin
     import ...MicroscopeControl: export_state, initialize, shutdown
     
-    const okFP = "C:\\Program Files\\Opal Kelly\\FrontPanelUSB\\API\\lib\\x64\\okFrontPanel.dll"
 
   
     include("types.jl")

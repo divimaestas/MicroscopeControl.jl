@@ -3,7 +3,7 @@ module OK_XEM
 
     import ...MicroscopeControl: export_state, initialize, shutdown
 
-    const okFP = "C:\\Program Files\\Opal Kelly\\FrontPanelUSB\\API\\lib\\x64\\okFrontPanel.dll"
+    using ...Libraries: libokfrontpanel
 
     include("constants_okFP.jl")
     include("functions_okFP.jl")
