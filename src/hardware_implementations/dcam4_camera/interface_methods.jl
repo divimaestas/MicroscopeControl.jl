@@ -17,13 +17,13 @@ function CameraInterface.getlastframe(camera::DCAM4Camera)
         if is_failed(err)
             @error "Failed to get last frame on event $event: $err"
             camera.last_error = err
-            err, hwait = dcamwait_close(hwait)
+            dcamwait_close(hwait)
             return
         end
         if is_timeout(err)
             @error "Timeout to get last frame on event $event: $err"
             camera.last_error = err
-            err, hwait = dcamwait_close(hwait)
+            dcamwait_close(hwait)
             return
         end
 
