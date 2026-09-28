@@ -71,22 +71,13 @@ function dcamdev_getstring(hdcam::Ptr{Cvoid}, strid::DCAM_IDSTR)
     dcs.text = pointer(textbuf)
     dcs.textbytes = sizeof(textbuf)
 
-    err = @ccall libdcam.dcamdev_getstring(hdcam::Ptr{Cvoid},dcs::Ref{DCAMDEV_STRING})::DCAMERR
+    err = GC.@preserve textbuf @ccall libdcam.dcamdev_getstring(hdcam::Ptr{Cvoid}, dcs::Ref{DCAMDEV_STRING})::DCAMERR
     if is_failed(err)
         display(err)
         @error "DCAM Failed to Get String"
     end
 
-    uint8_array = reinterpret(UInt8, textbuf)
-    str = String(uint8_array)
-
-    # Find the first null character
-    null_char_pos = findfirst(==(0), uint8_array)
-
-    # If a null character was found, truncate the string
-    if null_char_pos !== nothing
-        str = str[1:null_char_pos-1]
-    end
+    str = GC.@preserve textbuf unsafe_string(pointer(textbuf))
 
     return err, str
 end
