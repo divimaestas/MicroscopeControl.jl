@@ -1,6 +1,6 @@
 function ObjPositionerInterface.initialize(positioner::MclZPositioner)
     @info "Initializing Objective Positioner"
-    handle = @ccall madlibpath.MCL_InitHandle()::Cint
+    handle = @ccall libmicrodrive.MCL_InitHandle()::Cint
     positioner.handle = handle
     positioner.connectionstatus = true
     if handle == 0
@@ -12,7 +12,7 @@ function ObjPositionerInterface.initialize(positioner::MclZPositioner)
 end
 
 function ObjPositionerInterface.shutdown(positioner::MclZPositioner)
-    @ccall madlibpath.MCL_ReleaseHandle(positioner.handle::Cint)::Cvoid
+    @ccall libmicrodrive.MCL_ReleaseHandle(positioner.handle::Cint)::Cvoid
     positioner.connectionstatus = false
     @info "Handle Released"
     return nothing
@@ -42,7 +42,7 @@ function ObjPositionerInterface.move(positioner::MclZPositioner, z::Float64)
     if microdrive_move_status(positioner)
         microdrive_wait(positioner)
     end
-    call = @ccall madlibpath.MCL_MD1MoveProfile(
+    call = @ccall libmicrodrive.MCL_MD1MoveProfile(
         positioner.velocity::Cdouble, 
         z::Cdouble, 
         positioner.rounding::Cint, 
@@ -67,7 +67,7 @@ end
 
 function ObjPositionerInterface.get_position(positioner::MclZPositioner)
     pos = Vector{Cdouble}(undef, 1)  # allocate memory
-    call = @ccall madlibpath.MCL_MD1ReadEncoder(
+    call = @ccall libmicrodrive.MCL_MD1ReadEncoder(
         pos::Ptr{Cdouble},
         positioner.handle::Cint
     )::Cint
@@ -80,7 +80,7 @@ end
 
 function ObjPositionerInterface.stop_motion(positioner::MclZPositioner)
     status = Vector{Cuchar}(undef, 1) # allocate memory as array of bytes
-    call = @ccall madlibpath.MCL_MicroDriveStop(
+    call = @ccall libmicrodrive.MCL_MicroDriveStop(
         status::Ptr{Cuchar}, # passes pointer
         positioner.handle::Cint
     )::Cint

@@ -12,7 +12,7 @@ Waits for specified number of milliseconds and checks to see if the MicroDrive i
     - `isattached::Bool`: true if the device is attached
 """
 function mcl_device_attached(positioner::MclZPositioner, wait::UInt32)
-    isattached = @ccall madlibpath.MCL_DeviceAttached(wait::Cuint, positioner.handle::Cint)::Bool
+    isattached = @ccall libmicrodrive.MCL_DeviceAttached(wait::Cuint, positioner.handle::Cint)::Bool
     return isattached
 end
 
@@ -31,7 +31,7 @@ function mcl_get_firmware_version(positioner::MclZPositioner)
     version = Vector{Cshort}(undef, 1)
     profile = Vector{Cshort}(undef, 1)
 
-    call = @ccall madlibpath.MCL_GetFirmwareVersion(
+    call = @ccall libmicrodrive.MCL_GetFirmwareVersion(
         version::Ptr{Cshort},
         profile::Ptr{Cshort},
         positioner.handle::Cint
@@ -55,7 +55,7 @@ Prints product name, product ID, DDL version, and other product infromation to t
     - nothing
 """
 function mcl_print_device_info(positioner::MclZPositioner)
-    @ccall madlibpath.MCL_PrintDeviceInfo(positioner.handle::Cint)::Cvoid
+    @ccall libmicrodrive.MCL_PrintDeviceInfo(positioner.handle::Cint)::Cvoid
     return nothing
 end
 
@@ -70,7 +70,7 @@ Returns the serial number.
     - `serial_num::Int`: The serial number.
 """
 function mcl_get_serial_number(positioner::MclZPositioner)
-    serial_num = @ccall madlibpath.MCL_GetSerialNumber(positioner.handle::Cint)::Cint
+    serial_num = @ccall libmicrodrive.MCL_GetSerialNumber(positioner.handle::Cint)::Cint
     return serial_num[1]
 end
 
@@ -88,7 +88,7 @@ function mcl_dll_version(positioner::MclZPositioner)
     version = Vector{Cshort}(undef, 1)
     revision = Vector{Cshort}(undef, 1)
 
-    @ccall madlibpath.MCL_DLLVersion(
+    @ccall libmicrodrive.MCL_DLLVersion(
         version::Ptr{Cshort},
         revision::Ptr{Cshort},
         positioner.handle::Cint
@@ -110,7 +110,7 @@ Returns the product ID.
 function mcl_get_product_id(positioner::MclZPositioner)
     id = Vector{Cushort}(undef, 1)
 
-    call = @ccall madlibpath.MCL_GetProductID(
+    call = @ccall libmicrodrive.MCL_GetProductID(
         id::Ptr{Cushort},
         positioner.handle::Cint
     )::Cint

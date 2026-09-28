@@ -13,7 +13,7 @@ mess up their internal clock.
 """
 function microdrive_move_status(positioner::MclZPositioner)
     ismoving = Vector{Cint}(undef, 1) # allocate mem
-    call = @ccall madlibpath.MCL_MicroDriveMoveStatus(
+    call = @ccall libmicrodrive.MCL_MicroDriveMoveStatus(
         ismoving::Ptr{Cint},
         positioner.handle::Cint
     )::Cint
@@ -35,7 +35,7 @@ Call after every function to ensure that internal clock of MicroDrive doesn't ge
     - Error code, decoded
 """
 function microdrive_wait(positioner::MclZPositioner)
-    call = @ccall madlibpath.MCL_MicroDriveWait(positioner.handle::Cint)::Cint
+    call = @ccall libmicrodrive.MCL_MicroDriveWait(positioner.handle::Cint)::Cint
     return HardwareReturn[call]
 end
 
@@ -61,7 +61,7 @@ Reads the current state of the limit switches
 """
 function microdrive_status(positioner::MclZPositioner)
     status = Vector{Cuchar}(undef, 1) # allocate memory 
-    call = @ccall madlibpath.MCL_MicroDriveStatus(
+    call = @ccall libmicrodrive.MCL_MicroDriveStatus(
         status::Ptr{Cuchar},
         positioner.handle::Cint
     )::Cint
@@ -96,7 +96,7 @@ Stops the stage from moving
 function microdrive_stop(positioner::MclZPositioner)
     # same code as stop_motion, but also returns status
     status = Vector{Cuchar}(undef, 1) # allocate memory as array of bytes
-    call = @ccall madlibpath.MCL_MicroDriveStop(
+    call = @ccall libmicrodrive.MCL_MicroDriveStop(
         status::Ptr{Cuchar}, # passes pointer
         positioner.handle::Cint
     )::Cint
@@ -123,7 +123,7 @@ function microdrive_information(positioner::MclZPositioner)
     max_velocity = Vector{Cdouble}(undef, 1)
     min_velocity = Vector{Cdouble}(undef, 1)
 
-    call = @ccall madlibpath.MCL_MicroDriveInformation(
+    call = @ccall libmicrodrive.MCL_MicroDriveInformation(
         res::Ptr{Cdouble},
         step_size::Ptr{Cdouble},
         max_velocity::Ptr{Cdouble},

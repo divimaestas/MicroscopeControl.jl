@@ -13,7 +13,7 @@ Moves the positioner the specified number of microsteps.
 """
 function md1_move_profile_microsteps(positioner::MclZPositioner, microsteps::Int64)
     @info "Moving MicroDrive1 with $microsteps microsteps."
-    call = @ccall madlibpath.MCL_MD1MoveProfile_MicroSteps(
+    call = @ccall libmicrodrive.MCL_MD1MoveProfile_MicroSteps(
         positioner.velocity::Cdouble,
         microsteps::Cint,
         positioner.handle::Cint
@@ -49,7 +49,7 @@ Moves the positioner a single step forwards or backwards
     - "MCL_SUCCESS" or relevant error code
 """
 function md1_single_step(positioner::MclZPositioner, direction::Int64)
-    call = @ccall madlibpath.MCL_MD1SingleStep(
+    call = @ccall libmicrodrive.MCL_MD1SingleStep(
         direction::Cint, # direction: 1 for forward, -1 for reverse
         positioner.handle::Cint
     )::Cint
@@ -73,7 +73,7 @@ Makes the current position of the positioner the zero point
 """
 function md1_reset_encoder(positioner::MclZPositioner)
     status = Vector{Cuchar}(undef, 1)  # allocate memory for status byte
-    call = @ccall madlibpath.MCL_MD1ResetEncoder(
+    call = @ccall libmicrodrive.MCL_MD1ResetEncoder(
         status::Ptr{Cuchar},  # status parameter
         positioner.handle::Cint  # handle parameter
     )::Cint
@@ -93,7 +93,7 @@ Reads the postion of the positioner from the encoder
 """
 function md1_read_encoder(positioner::MclZPositioner)
     position = Vector{Cdouble}(undef, 1)  # allocate memory for position
-    call = @ccall madlibpath.MCL_MD1ReadEncoder(
+    call = @ccall libmicrodrive.MCL_MD1ReadEncoder(
         position::Ptr{Cdouble},  # position parameter
         positioner.handle::Cint  # handle parameter
     )::Cint
@@ -113,7 +113,7 @@ Reads the number of microsteps taken since the beginning of the program
 """
 function md1_current_microstep_pos(positioner::MclZPositioner)
     microsteps = Vector{Cint}(undef, 1)  # allocate memory for microstep count
-    call = @ccall madlibpath.MCL_MD1CurrentMicroStepPosition(
+    call = @ccall libmicrodrive.MCL_MD1CurrentMicroStepPosition(
         microsteps::Ptr{Cint},  # microSteps parameter
         positioner.handle::Cint  # handle parameter
     )::Cint
