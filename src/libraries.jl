@@ -8,7 +8,8 @@ precompilation. `@ccall libdcam.f(...)` then works on any platform.
 Override any path with the matching environment variable, e.g.
 `MICROSCOPECONTROL_LIBDCAM=/opt/hamamatsu/lib/libdcamapi.so`.
 
-Linux names are provisional: they follow vendor convention but are
+Linux names are provisional except `libdcam`, verified 2026-09-28 against
+DCAM-API Lite v26.6.7175 on Ubuntu 26.04. The others follow vendor convention but are
 unverified against a real install. The env-var override exists so a
 wrong guess costs nothing.
 """
