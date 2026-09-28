@@ -31,7 +31,7 @@ using LibSerialPort
 
 import ...MicroscopeControl: export_state, initialize, shutdown
 
-export CoherentSapphire, gui, query, status
+export CoherentSapphire, query, status, getpower
 
 const TERM = "\r\n"
 
@@ -68,14 +68,15 @@ Construct a `CoherentSapphire` on `portname`. Pure: nothing is opened until
 # Arguments
 - `portname::String`: serial port, e.g. "/dev/ttyUSB0" on Linux or "COM4" on Windows.
 - `unique_id::String`: identifier, default "CoherentSapphire561".
-- `min_power::Float64`: minimum setpoint in mW, default 0.0.
-- `max_power::Float64`: maximum setpoint in mW, default 100.0.
+- `min_power::Float64`: minimum setpoint in mW, default 10.0 (the Sapphire 561-100 rejects lower).
+  Note the laser accepts P=0 only in the sense of "off"; use `light_off`.
+- `max_power::Float64`: maximum setpoint in mW, default 110.0 (from the laser's own error reply).
 - `baudrate::Int`: default 19200.
 """
 function CoherentSapphire(portname::String;
     unique_id::String = "CoherentSapphire561",
-    min_power::Float64 = 0.0,
-    max_power::Float64 = 100.0,
+    min_power::Float64 = 10.0,
+    max_power::Float64 = 110.0,
     baudrate::Int = 19200)
     properties = LightSourceProperties("mW", 0.0, false, min_power, max_power)
     return CoherentSapphire(unique_id, properties, "561", portname, baudrate, nothing, false)
@@ -87,20 +88,25 @@ end
 Send `cmd` and return the reply as a stripped string. Returns an empty string
 if the laser does not answer within `wait` seconds.
 """
-function query(light::CoherentSapphire, cmd::AbstractString; timeout::Float64 = 1.0)
+function query(light::CoherentSapphire, cmd::AbstractString; timeout::Float64 = 1.0, quiet::Float64 = 0.08)
     io = light.io
     io === nothing && error("$(light.unique_id): port not open, call initialize first")
-    bytesavailable(io) > 0 && read(io)          # drop any stale reply
+    bytesavailable(io) > 0 && read(io)
     write(io, cmd * TERM)
     buf = UInt8[]
     t0 = time()
+    seen_newline = false
+    tlast = time()
     while time() - t0 < timeout
         n = bytesavailable(io)
         if n > 0
             append!(buf, read(io, n))
-            UInt8('\n') in buf && break
+            tlast = time()
+            seen_newline |= (UInt8('\n') in buf)
+        elseif seen_newline && time() - tlast > quiet
+            break
         else
-            sleep(0.02)
+            sleep(0.01)
         end
     end
     return strip(replace(String(buf), r"[\r\n>]+" => " "))
@@ -178,15 +184,34 @@ function LightSourceInterface.setpower(light::CoherentSapphire, power::Float64)
     lo = light.properties.min_power
     hi = light.properties.max_power
     lo <= power <= hi || error("$(light.unique_id): power $power mW is outside [$lo, $hi]")
-    send(light, "P=" * string(round(power, digits = 2)))
-    light.properties.power = power
+    reply = query(light, "P=" * string(round(power, digits = 3)))
+    occursin(r"must be|error|invalid"i, reply) && error("$(light.unique_id): laser rejected P=$power: $reply")
+    # The controller accepts the setpoint immediately but ?SP lags by up to ~1 s.
+    t0 = time()
+    sp = NaN
+    while time() - t0 < 3.0
+        sp = something(tryparse(Float64, query(light, "?SP")), NaN)
+        isapprox(sp, power; atol = 0.01) && break
+        sleep(0.1)
+    end
+    isapprox(sp, power; atol = 0.01) || error("$(light.unique_id): setpoint did not take, ?SP=$sp after P=$power")
+    light.properties.power = sp
     return nothing
+end
+
+"""
+    getpower(light::CoherentSapphire)
+
+Return the measured output power in mW from `?P`. Zero when emission is off.
+"""
+function getpower(light::CoherentSapphire)
+    return something(tryparse(Float64, query(light, "?P")), NaN)
 end
 
 """
     light_on(light::CoherentSapphire)
 
-Enable emission.
+Enable emission at the current setpoint.
 """
 function LightSourceInterface.light_on(light::CoherentSapphire)
     send(light, "L=1")
