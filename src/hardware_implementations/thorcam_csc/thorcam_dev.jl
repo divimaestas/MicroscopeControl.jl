@@ -1,5 +1,5 @@
 function discoveravaliablecameras!(unique_id::Vector{UInt8}, max_length::Cint)
-    is_camera_found = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_discover_available_cameras(unique_id::Ptr{UInt8}, max_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera, this changes the unique_id
+    is_camera_found = @ccall libthorlabs_tsi.tl_camera_discover_available_cameras(unique_id::Ptr{UInt8}, max_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera, this changes the unique_id
     if is_camera_found != 0
         @error "Camera not found"
     end
@@ -7,7 +7,7 @@ function discoveravaliablecameras!(unique_id::Vector{UInt8}, max_length::Cint)
 end
 
 function discoveravaliablecameras!(camera::ThorCamCSCCamera, unique_id::Vector{UInt8}, max_length::Cint)
-    is_camera_found = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_discover_available_cameras(unique_id::Ptr{UInt8}, max_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera
+    is_camera_found = @ccall libthorlabs_tsi.tl_camera_discover_available_cameras(unique_id::Ptr{UInt8}, max_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera
     if is_camera_found != 0
         @error "Camera not found"
     end
@@ -19,7 +19,7 @@ function discoveravaliablecameras!(camera::ThorCamCSCCamera, unique_id::Vector{U
 end 
 
 function discoveravaliablecameras!(camera::ThorCamCSCCamera)
-    is_camera_found = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_discover_available_cameras(camera.unique_id::Ptr{UInt8}, camera.max_id_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera, this changes the unique_id
+    is_camera_found = @ccall libthorlabs_tsi.tl_camera_discover_available_cameras(camera.unique_id::Ptr{UInt8}, camera.max_id_length::Cint)::Cint   #returns zero if successful, test_ID is a pointer to a string containing the ID of the camera, this changes the unique_id
     if is_camera_found != 0
         @error "Camera not found"
     end
@@ -59,7 +59,7 @@ function opencamera!(camera::ThorCamCSCCamera)  #function without specified ID S
 end
 
 function closecamera(camera::ThorCamCSCCamera)
-    is_camera_closed = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_close_camera(camera.camera_handle::Ptr{Cvoid})::Cint
+    is_camera_closed = @ccall libthorlabs_tsi.tl_camera_close_camera(camera.camera_handle::Ptr{Cvoid})::Cint
     if is_camera_closed != 0
         @error "Camera not closed"
     end
@@ -68,7 +68,7 @@ end
 
 
 function closecamera(camera_handle::Ptr{Cvoid})
-    is_camera_closed = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_close_camera(camera_handle::Ptr{Cvoid})::Cint
+    is_camera_closed = @ccall libthorlabs_tsi.tl_camera_close_camera(camera_handle::Ptr{Cvoid})::Cint
     if is_camera_closed != 0
         @error "Camera not closed"
     end

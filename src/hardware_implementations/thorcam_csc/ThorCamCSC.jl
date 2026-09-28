@@ -7,6 +7,7 @@ using GLMakie
 
 import ...MicroscopeControl.HardwareInterfaces.CameraInterface: Camera, setexposuretime!
 import ...MicroscopeControl: export_state, initialize, shutdown
+using ...Libraries: libthorlabs_tsi
 
 export ThorCamCSCCamera, gui, shutdown
 export getlastframe, capture, live, sequence, abort, getdata

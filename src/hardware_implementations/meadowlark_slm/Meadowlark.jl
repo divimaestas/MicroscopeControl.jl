@@ -5,6 +5,7 @@ using GLMakie, Images
 
 import ...MicroscopeControl.HardwareInterfaces.SLMInterface: SLM
 import ...MicroscopeControl: export_state, initialize, shutdown
+using ...Libraries: libblink
 
 export MLSLM, Pupil, Sequence
 export displayimage, displayzernike, displayblaze

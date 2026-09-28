@@ -1,5 +1,5 @@
 function show_error()
-    error_msg = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_get_last_error()::Ptr{UInt8}
+    error_msg = @ccall libthorlabs_tsi.tl_camera_get_last_error()::Ptr{UInt8}
 
     message = Vector{UInt8}(undef, 128)
     for i in 1:128

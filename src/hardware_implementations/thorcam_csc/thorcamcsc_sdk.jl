@@ -1,7 +1,7 @@
 #Contains functions for opening and closing SDK
 
 function thorcamsdkinit()
-    err = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_open_sdk()::Cint #Returns zero if successful
+    err = @ccall libthorlabs_tsi.tl_camera_open_sdk()::Cint #Returns zero if successful
     if err != 0
         @error "ThorCamCSC SDK Failed to Open"
     end
@@ -10,7 +10,7 @@ end
 
 
 function thorcamsdkuninit()
-    err = @ccall "thorlabs_tsi_camera_sdk.dll".tl_camera_close_sdk()::Cint #Returns zero if successful
+    err = @ccall libthorlabs_tsi.tl_camera_close_sdk()::Cint #Returns zero if successful
     if err != 0
         @error "ThorCamCSC SDK Failed to Close"
     end
