@@ -28,7 +28,7 @@ function collect_sequence(nframes::Int=100; timeout_milisec::Int32=Int32(1000))
     hdcam = dco.hdcam
 
     im_width, im_height = dcamprop_getsize(hdcam)
-    err, exposure_time = dcamprop_getvalue(hdcam, DCAM_IDPROPTR_EXPOSURETIME)
+    err, exposure_time = dcamprop_getvalue(hdcam, DCAM_IDPROP_EXPOSURETIME)
 
     println("expsoure time: ", exposure_time)
 
