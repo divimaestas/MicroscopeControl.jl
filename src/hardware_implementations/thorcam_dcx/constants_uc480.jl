@@ -3244,7 +3244,6 @@ const BOOL = Cuint
 
 const UC480_VERSION_CODE = UC480_VERSION(4, 80, 0)
 
-const DRIVER_DLL_NAME = "uc480_64.dll"
 
 const IS_COLORMODE_INVALID = 0
 

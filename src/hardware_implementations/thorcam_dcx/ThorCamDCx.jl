@@ -14,7 +14,7 @@ export getlastframe, capture, live, sequence, abort, getdata
 export setexposuretime!, setroi!
 
 
-const uc480 = "C:\\Windows\\System32\\uc480_64.dll"
+using ...Libraries: libuc480
 
 
 # include statements

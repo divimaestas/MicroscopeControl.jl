@@ -3,8 +3,7 @@ module MCS2Stage_mod
 using ...MicroscopeControl.HardwareInterfaces.StageInterface
 import ...MicroscopeControl: export_state, initialize, shutdown
 
-# Path to the SmarAct DLL 
-const SmarAct = "C:\\Windows\\System32\\SmarActCTL.dll"
+using ...Libraries: libsmaractctl
 
 # Load sub-files in dependency order 
 # 1. Constants first — everything else depends on the type aliases
