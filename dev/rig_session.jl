@@ -11,7 +11,7 @@
 #   move <axis> by <um>     relative move
 #   move <axis> to <um>     absolute move
 #   park [axis|all]         to 0 um
-#   collect                 one frame, report stats
+#   snap | collect          one frame, report stats
 #   scan <axis> <start> <stop> <n>   move+collect series, saves .h5
 #   exposure <seconds>
 #   help / quit
@@ -79,7 +79,7 @@ try
 
             elseif cmd == "help"
                 println("status | read [axis] | move <axis> by|to <um> | park [axis] |")
-                println("collect | scan <axis> <start> <stop> <n> | exposure <sec> | quit")
+                println("snap (collect) | scan <axis> <start> <stop> <n> | exposure <sec> | quit")
 
             elseif cmd == "status"
                 println("  camera exposure $(cam.exposure_time)s  roi $(cam.roi.width)x$(cam.roi.height)  running=$(cam.is_running)")
@@ -111,7 +111,7 @@ try
                 M.setexposuretime!(cam)
                 println("  exposure $(cam.exposure_time) s")
 
-            elseif cmd == "collect"
+            elseif cmd == "collect" || cmd == "snap"
                 img = collect_frame(cam)
                 img === nothing ? println("  FAILED: $(cam.last_error)") :
                     println("  $(size(img))  range $(extrema(img))  mean $(round(sum(Float64,img)/length(img),digits=1))")

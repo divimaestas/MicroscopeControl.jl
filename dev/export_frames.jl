@@ -50,8 +50,34 @@ function export_file(h5path; first_only = false)
     stem   = replace(basename(h5path), r"\.h5$"i => "")
     outdir = joinpath(folder, "png")
     mkpath(outdir)
+    # Two layouts exist: the GUI writes Main/camera/data as a 1024x1024xN
+    # stack; rig scans write Main/frames/position_NN/data, one 2-D frame per
+    # position. Find image-shaped datasets instead of assuming a path.
     a = h5open(h5path, "r") do f
-        read(f[DSET])
+        if haskey(f, DSET)
+            read(f[DSET])
+        else
+            paths = String[]
+            function walk(o, prefix)
+                for k in sort(collect(keys(o)))
+                    c = o[k]
+                    p2 = prefix == "" ? k : prefix * "/" * k
+                    if c isa HDF5.Group
+                        walk(c, p2)
+                    elseif ndims(c) >= 2 && size(c, 1) > 4 && size(c, 2) > 4
+                        push!(paths, p2)
+                    end
+                end
+            end
+            walk(f, "")
+            isempty(paths) && error("no image-like dataset in $h5path")
+            frames = [read(f[q]) for q in paths]
+            if length(frames) == 1
+                frames[1]
+            else
+                cat(frames...; dims = ndims(frames[1]) + 1)
+            end
+        end
     end
     nframes = size(a, 3)
     lo, hi  = extrema(a)
