@@ -108,7 +108,7 @@ on(b_focus.clicks) do _
         v = tryparse(Float64, tb_ef.stored_string[])
         isnothing(v) || (cam.exposure_time = v; M.setexposuretime!(cam))
         live[] = true; b_focus.label = "STOP"
-        @async while live[]
+        Threads.@spawn while live[]
             f = grab()
             f === nothing ? (live[] = false; msg[] = "capture failed") : show!(f)
             sleep(0.03); yield()
@@ -122,8 +122,9 @@ on(b_abort.clicks) do _; abrt[] = true; live[] = false; msg[] = "ABORT"; end
 on(b_start.clicks) do _
     busy[] && return
     live[] = false; b_focus.label = "Focus (live)"; abrt[] = false
-    @async begin
-        busy[] = true
+    busy[] = true
+    b_start.label = "Acquiring…"
+    Threads.@spawn begin
         try
             v = tryparse(Float64, tb_es.stored_string[])
             isnothing(v) || (cam.exposure_time = v; M.setexposuretime!(cam))
@@ -151,7 +152,7 @@ on(b_start.clicks) do _
             end
             abrt[] || (msg[] = "done -> $dir")
         catch e; msg[] = "acquisition failed: $e"
-        finally; busy[] = false end
+        finally; busy[] = false; b_start.label = "START" end
     end
 end
 rr = nr(); Label(P[rr,1],"Stage z",halign=:left,fontsize=11)
