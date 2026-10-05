@@ -98,6 +98,31 @@ function singlewriteZ(stage::MCLStage, position::Float64)
 end
 
 """
+    axis_range(stage::MCLStage, axis::Int) -> Tuple{Float64,Float64}
+
+The calibrated travel for one axis. Used to clamp before every write.
+"""
+function axis_range(stage::MCLStage, axis::Int)
+    axis == 1 && return stage.range_x
+    axis == 2 && return stage.range_y
+    axis == 3 && return stage.range_z
+    error("Invalid axis $axis (expected 1, 2 or 3)")
+end
+
+"""
+    clamp_to_range(stage::MCLStage, axis::Int, position::Float64) -> Float64
+
+Clamp an absolute target into the axis's calibrated travel. A position read
+back at a limit is routinely a few nanometres negative; feeding that straight
+back to Madlib returns -6 MCL_ARGUMENT_ERROR. These values are measurement
+noise at the limit, not user error, so clamping silently is correct here.
+"""
+function clamp_to_range(stage::MCLStage, axis::Int, position::Float64)
+    lo, hi = axis_range(stage, axis)
+    return clamp(position, Float64(lo), Float64(hi))
+end
+
+"""
 monitor(stage::MCLStage, axis::Int, position::Float64)
 
 # Arguments
@@ -112,25 +137,38 @@ monitor(stage::MCLStage, axis::Int, position::Float64)
 This function moves the stage to a given position then reads the location after movement
 """
 function monitor(stage::MCLStage, axis::Int, position::Float64)
-    if axis == 1
-        location = @ccall madlibpath.MCL_MonitorN(position::Cdouble, Cint(1)::Cint, stage.id::Cint)::Cint
-        stage.targ_x = position
-        stage.real_x = location
+    axis in (1, 2, 3) || (@error "Invalid axis" axis; return false)
+
+    target = clamp_to_range(stage, axis, position)
+
+    # MCL_MonitorN returns a double: the position after the move, or a
+    # negative error code.
+    location = @ccall madlibpath.MCL_MonitorN(
+        target::Cdouble, UInt32(axis)::Cuint, stage.id::Cint
+    )::Cdouble
+
+    # Madlib error codes are whole negative integers (-1..-8). A position a
+    # few nanometres below zero is measurement noise at the travel limit, not
+    # an error, so only treat <= -1.0 as a failure.
+    if location <= -1.0
+        code = round(Int, location)
+        @error "MCL_MonitorN failed" axis target code =
+            get(HardwareReturn, code, "unknown error $code")
         return location
-    elseif axis == 2
-        loaction = @ccall madlibpath.MCL_SingleWriteN(position::Cdouble, Cint(2)::Cint, stage.id::Cint)::Cint
-        stage.targ_y = position
-        stage.real_y = location
-        return loaction
-    elseif axis == 3
-        loaction = @ccall madlibpath.MCL_SingleWriteN(position::Cdouble, Cint(3)::Cint, stage.id::Cint)::Cint
-        stage.targ_z = position
-        stage.real_z = location
-        return loaction
-    else
-        @error "Invalid axis"
-        return false
     end
+
+    if axis == 1
+        stage.targ_x = target
+        stage.real_x = location
+    elseif axis == 2
+        stage.targ_y = target
+        stage.real_y = location
+    else
+        stage.targ_z = target
+        stage.real_z = location
+    end
+
+    return location
 end
 
 """
@@ -144,8 +182,23 @@ Sets the position of the Z axis
 Commands the Nano-Drive to move the Z axis to a position and then reads the current position of the axis.
 """
 function monitorZ(stage::MCLStage, position::Float64)
-    location = @ccall madlibpath.MCL_MonitorZ(position::Cdouble, stage.id::Cint)::Cint
-    stage.targ_z = position
+    target = clamp_to_range(stage, 3, position)
+
+    location = @ccall madlibpath.MCL_MonitorZ(
+        target::Cdouble, stage.id::Cint
+    )::Cdouble
+
+    # Madlib error codes are whole negative integers (-1..-8). A position a
+    # few nanometres below zero is measurement noise at the travel limit, not
+    # an error, so only treat <= -1.0 as a failure.
+    if location <= -1.0
+        code = round(Int, location)
+        @error "MCL_MonitorZ failed" target code =
+            get(HardwareReturn, code, "unknown error $code")
+        return location
+    end
+
+    stage.targ_z = target
     stage.real_z = location
     return location
 end

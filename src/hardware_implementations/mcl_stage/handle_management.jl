@@ -21,6 +21,19 @@ function inithandle(stage::MCLStage)
     if handle == 0
         @error "Stage Not Found"
         stage.connectionstatus = false
+        return handle
+    end
+
+    # Read the travel from the device rather than trusting the struct
+    # defaults. monitor/move clamp against these ranges, so a wrong range
+    # means either a refused write (-6 MCL_ARGUMENT_ERROR) or a clamp that
+    # does nothing. Every Nano-Drive reports its own calibration.
+    for axis in 1:3
+        try
+            getcalibration(stage, axis)
+        catch e
+            @warn "Could not read calibration; keeping the default range" axis exception = e
+        end
     end
 
     return handle

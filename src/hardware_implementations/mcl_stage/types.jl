@@ -16,9 +16,9 @@ Base.@kwdef mutable struct MCLStage <: Stage
     targ_x::Float64 = 0.0
     targ_y::Float64 = 0.0
     targ_z::Float64 = 0.0
-    range_x::Tuple{Float64,Float64} = (0, 300)
-    range_y::Tuple{Float64,Float64} = (0, 300)
-    range_z::Tuple{Float64,Float64} = (0, 300)
+    range_x::Tuple{Float64,Float64} = (0, 101.495)
+    range_y::Tuple{Float64,Float64} = (0, 101.266)
+    range_z::Tuple{Float64,Float64} = (0, 101.499)
 end
 
 HardwareReturn = Dict{Int, String}(
