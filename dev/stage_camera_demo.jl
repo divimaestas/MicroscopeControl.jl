@@ -10,7 +10,7 @@ const MC = MicroscopeControl
 M = MC.HardwareImplementations.DCAM4
 S = MC.HardwareImplementations.MadCityLabs
 
-const OUTDIR   = "/mnt/c/Users/divimaestas/Desktop/divi_linux_project27/demos"
+const OUTDIR   = "/mnt/d/divi_linux_project27/demos"
 const LOCALDIR = joinpath(homedir(), "captures")
 const POSITIONS = [0.0, 25.0, 50.0, 75.0, 100.0]   # microns, X axis
 const AXIS = 1                                      # 1=X, 2=Y, 3=Z

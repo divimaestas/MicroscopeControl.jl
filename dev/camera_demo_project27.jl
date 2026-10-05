@@ -6,7 +6,7 @@ using Dates
 using MicroscopeControl
 M = MicroscopeControl.HardwareImplementations.DCAM4
 
-const OUTDIR = "/mnt/c/Users/divimaestas/Desktop/divi_linux_project27/demos"
+const OUTDIR = "/mnt/d/divi_linux_project27/demos"
 const LOCALDIR = joinpath(homedir(), "captures")
 
 function write_bmp(path, img::AbstractMatrix{UInt16})

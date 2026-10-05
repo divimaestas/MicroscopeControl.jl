@@ -20,7 +20,7 @@ const MC = MicroscopeControl
 M = MC.HardwareImplementations.DCAM4
 
 const LOCALDIR = joinpath(homedir(), "captures")
-const OUTDIR   = "/mnt/c/Users/divimaestas/Desktop/divi_linux_project27/demos"
+const OUTDIR   = "/mnt/d/divi_linux_project27/demos"
 const AXES = Dict("x" => 1, "y" => 2, "z" => 3)
 axname(i) = ("x","y","z")[i]
 

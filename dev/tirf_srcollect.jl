@@ -2,7 +2,7 @@
 using Dates, GLMakie, HDF5, Printf, MicroscopeControl
 const MC = MicroscopeControl
 M = MC.HardwareImplementations.DCAM4
-const LOCALDIR = "/mnt/c/Users/divimaestas/Desktop/divi_linux_project27/captures"
+const LOCALDIR = "/mnt/d/divi_linux_project27/captures"
 const ROIS = [
  "Full"=>(0,0,2048,2048), "Left"=>(0,0,1024,2048), "Right"=>(1024,0,1024,2048),
  "Left Center"=>(0,512,1024,1024), "Right Center"=>(1024,512,1024,1024),
