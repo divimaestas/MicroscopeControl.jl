@@ -184,17 +184,22 @@ function LightSourceInterface.setpower(light::CoherentSapphire, power::Float64)
     lo = light.properties.min_power
     hi = light.properties.max_power
     lo <= power <= hi || error("$(light.unique_id): power $power mW is outside [$lo, $hi]")
-    reply = query(light, "P=" * string(round(power, digits = 3)))
-    occursin(r"must be|error|invalid"i, reply) && error("$(light.unique_id): laser rejected P=$power: $reply")
+    # The Sapphire stores setpoints in 0.1 mW steps, so ?SP reads back the
+    # requested value rounded to one decimal (P=57.143 -> ?SP 57.1). Round to the
+    # hardware's resolution first and verify against that, or the check below
+    # fails on a setpoint the laser accepted correctly.
+    target = round(power, digits = 1)
+    reply = query(light, "P=" * string(target))
+    occursin(r"must be|error|invalid"i, reply) && error("$(light.unique_id): laser rejected P=$target: $reply")
     # The controller accepts the setpoint immediately but ?SP lags by up to ~1 s.
     t0 = time()
     sp = NaN
     while time() - t0 < 3.0
         sp = something(tryparse(Float64, query(light, "?SP")), NaN)
-        isapprox(sp, power; atol = 0.01) && break
+        isapprox(sp, target; atol = 0.05) && break
         sleep(0.1)
     end
-    isapprox(sp, power; atol = 0.01) || error("$(light.unique_id): setpoint did not take, ?SP=$sp after P=$power")
+    isapprox(sp, target; atol = 0.05) || error("$(light.unique_id): setpoint did not take, ?SP=$sp after P=$target")
     light.properties.power = sp
     return nothing
 end
